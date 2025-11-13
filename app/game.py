@@ -69,6 +69,8 @@ class SnakeGame:
                 else:
                     if event.key == pygame.K_SPACE:
                         self.paused = not self.paused
+                    elif self.paused and event.key == pygame.K_q:
+                        return False
                     elif not self.paused:
                         if (
                             event.key == pygame.K_UP
@@ -186,16 +188,21 @@ class SnakeGame:
             continue_text = self.font.render(
                 "Press SPACE to continue", True, self.WHITE
             )
+            quit_text = self.font.render("Press Q to quit", True, self.WHITE)
 
             text_rect = pause_text.get_rect(
-                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 20)
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 40)
             )
             continue_rect = continue_text.get_rect(
-                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 20)
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 10)
+            )
+            quit_rect = quit_text.get_rect(
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 50)
             )
 
             self.screen.blit(pause_text, text_rect)
             self.screen.blit(continue_text, continue_rect)
+            self.screen.blit(quit_text, quit_rect)
 
         # Draw game over screen
         if self.game_over:

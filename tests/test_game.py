@@ -265,6 +265,25 @@ class TestPauseFeature:
         # Assert
         assert game.paused is False
 
+    def test_quit_on_q_when_paused(
+        self, game: SnakeGame, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        """Test that pressing 'q' when paused quits the game."""
+        # Arrange
+        game.paused = True
+
+        # Mock pygame.event.get to return a 'q' key press event
+        import pygame
+
+        mock_event = type("Event", (), {"type": pygame.KEYDOWN, "key": pygame.K_q})()
+        monkeypatch.setattr("pygame.event.get", lambda: [mock_event])
+
+        # Act
+        result = game.handle_input()
+
+        # Assert
+        assert result is False
+
 
 class TestResetGame:
     """Tests for game reset functionality."""
