@@ -2,14 +2,16 @@ import pygame
 import random
 from enum import Enum
 
+
 class Direction(Enum):
     UP = 1
     DOWN = 2
     LEFT = 3
     RIGHT = 4
 
+
 class SnakeGame:
-    def __init__(self):
+    def __init__(self) -> None:
         pygame.init()
 
         # Game constants
@@ -28,30 +30,34 @@ class SnakeGame:
 
         # Setup display
         self.screen = pygame.display.set_mode((self.WINDOW_WIDTH, self.WINDOW_HEIGHT))
-        pygame.display.set_caption('Snake Game')
+        pygame.display.set_caption("Snake Game")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.Font(None, 36)
 
         # Game state
         self.reset_game()
 
-    def reset_game(self):
-        self.snake = [(self.GRID_WIDTH // 2, self.GRID_HEIGHT // 2)]
-        self.direction = Direction.RIGHT
-        self.next_direction = Direction.RIGHT
-        self.food = self.spawn_food()
-        self.score = 0
-        self.game_over = False
-        self.paused = False
+    def reset_game(self) -> None:
+        self.snake: list[tuple[int, int]] = [
+            (self.GRID_WIDTH // 2, self.GRID_HEIGHT // 2)
+        ]
+        self.direction: Direction = Direction.RIGHT
+        self.next_direction: Direction = Direction.RIGHT
+        self.food: tuple[int, int] = self.spawn_food()
+        self.score: int = 0
+        self.game_over: bool = False
+        self.paused: bool = False
 
-    def spawn_food(self):
+    def spawn_food(self) -> tuple[int, int]:
         while True:
-            food = (random.randint(0, self.GRID_WIDTH - 1),
-                   random.randint(0, self.GRID_HEIGHT - 1))
+            food: tuple[int, int] = (
+                random.randint(0, self.GRID_WIDTH - 1),
+                random.randint(0, self.GRID_HEIGHT - 1),
+            )
             if food not in self.snake:
                 return food
 
-    def handle_input(self):
+    def handle_input(self) -> bool:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return False
@@ -64,24 +70,38 @@ class SnakeGame:
                     if event.key == pygame.K_SPACE:
                         self.paused = not self.paused
                     elif not self.paused:
-                        if event.key == pygame.K_UP and self.direction != Direction.DOWN:
+                        if (
+                            event.key == pygame.K_UP
+                            and self.direction != Direction.DOWN
+                        ):
                             self.next_direction = Direction.UP
-                        elif event.key == pygame.K_DOWN and self.direction != Direction.UP:
+                        elif (
+                            event.key == pygame.K_DOWN
+                            and self.direction != Direction.UP
+                        ):
                             self.next_direction = Direction.DOWN
-                        elif event.key == pygame.K_LEFT and self.direction != Direction.RIGHT:
+                        elif (
+                            event.key == pygame.K_LEFT
+                            and self.direction != Direction.RIGHT
+                        ):
                             self.next_direction = Direction.LEFT
-                        elif event.key == pygame.K_RIGHT and self.direction != Direction.LEFT:
+                        elif (
+                            event.key == pygame.K_RIGHT
+                            and self.direction != Direction.LEFT
+                        ):
                             self.next_direction = Direction.RIGHT
 
         return True
 
-    def update(self):
+    def update(self) -> None:
         if self.game_over or self.paused:
             return
 
         self.direction = self.next_direction
 
         # Calculate new head position
+        head_x: int
+        head_y: int
         head_x, head_y = self.snake[0]
 
         if self.direction == Direction.UP:
@@ -93,11 +113,15 @@ class SnakeGame:
         elif self.direction == Direction.RIGHT:
             head_x += 1
 
-        new_head = (head_x, head_y)
+        new_head: tuple[int, int] = (head_x, head_y)
 
         # Check wall collision
-        if (head_x < 0 or head_x >= self.GRID_WIDTH or
-            head_y < 0 or head_y >= self.GRID_HEIGHT):
+        if (
+            head_x < 0
+            or head_x >= self.GRID_WIDTH
+            or head_y < 0
+            or head_y >= self.GRID_HEIGHT
+        ):
             self.game_over = True
             return
 
@@ -117,55 +141,81 @@ class SnakeGame:
             # Remove tail if no food eaten
             self.snake.pop()
 
-    def draw(self):
+    def draw(self) -> None:
         self.screen.fill(self.BLACK)
 
         # Draw snake
         for i, segment in enumerate(self.snake):
+            x: int
+            y: int
             x, y = segment
             color = self.GREEN if i == 0 else self.DARK_GREEN
-            pygame.draw.rect(self.screen,
-                           color,
-                           (x * self.GRID_SIZE, y * self.GRID_SIZE,
-                            self.GRID_SIZE - 2, self.GRID_SIZE - 2))
+            pygame.draw.rect(
+                self.screen,
+                color,
+                (
+                    x * self.GRID_SIZE,
+                    y * self.GRID_SIZE,
+                    self.GRID_SIZE - 2,
+                    self.GRID_SIZE - 2,
+                ),
+            )
 
         # Draw food
+        fx: int
+        fy: int
         fx, fy = self.food
-        pygame.draw.rect(self.screen,
-                        self.RED,
-                        (fx * self.GRID_SIZE, fy * self.GRID_SIZE,
-                         self.GRID_SIZE - 2, self.GRID_SIZE - 2))
+        pygame.draw.rect(
+            self.screen,
+            self.RED,
+            (
+                fx * self.GRID_SIZE,
+                fy * self.GRID_SIZE,
+                self.GRID_SIZE - 2,
+                self.GRID_SIZE - 2,
+            ),
+        )
 
         # Draw score
-        score_text = self.font.render(f'Score: {self.score}', True, self.WHITE)
+        score_text = self.font.render(f"Score: {self.score}", True, self.WHITE)
         self.screen.blit(score_text, (10, 10))
 
         # Draw pause screen
         if self.paused:
-            pause_text = self.font.render('PAUSED', True, self.WHITE)
-            continue_text = self.font.render('Press SPACE to continue', True, self.WHITE)
+            pause_text = self.font.render("PAUSED", True, self.WHITE)
+            continue_text = self.font.render(
+                "Press SPACE to continue", True, self.WHITE
+            )
 
-            text_rect = pause_text.get_rect(center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 20))
-            continue_rect = continue_text.get_rect(center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 20))
+            text_rect = pause_text.get_rect(
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 20)
+            )
+            continue_rect = continue_text.get_rect(
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 20)
+            )
 
             self.screen.blit(pause_text, text_rect)
             self.screen.blit(continue_text, continue_rect)
 
         # Draw game over screen
         if self.game_over:
-            game_over_text = self.font.render('GAME OVER!', True, self.RED)
-            restart_text = self.font.render('Press SPACE to restart', True, self.WHITE)
+            game_over_text = self.font.render("GAME OVER!", True, self.RED)
+            restart_text = self.font.render("Press SPACE to restart", True, self.WHITE)
 
-            text_rect = game_over_text.get_rect(center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 20))
-            restart_rect = restart_text.get_rect(center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 20))
+            text_rect = game_over_text.get_rect(
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 20)
+            )
+            restart_rect = restart_text.get_rect(
+                center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 20)
+            )
 
             self.screen.blit(game_over_text, text_rect)
             self.screen.blit(restart_text, restart_rect)
 
         pygame.display.flip()
 
-    def run(self):
-        running = True
+    def run(self) -> None:
+        running: bool = True
 
         while running:
             running = self.handle_input()
@@ -175,9 +225,11 @@ class SnakeGame:
 
         pygame.quit()
 
-def main():
-    game = SnakeGame()
+
+def main() -> None:
+    game: SnakeGame = SnakeGame()
     game.run()
+
 
 if __name__ == "__main__":
     main()

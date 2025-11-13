@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Important Guidelines
+
+**NEVER install anything globally.** Always use project-local installations via `uv add --dev` or other project-scoped methods. Do not use `uv tool install` or any global installation commands.
+
 ## Project Overview
 
 This is a Snake game implementation using pygame. The entire game is contained in a single file (`main.py`) with a class-based architecture.
