@@ -42,6 +42,7 @@ class SnakeGame:
         self.food = self.spawn_food()
         self.score = 0
         self.game_over = False
+        self.paused = False
 
     def spawn_food(self):
         while True:
@@ -60,19 +61,22 @@ class SnakeGame:
                     if event.key == pygame.K_SPACE:
                         self.reset_game()
                 else:
-                    if event.key == pygame.K_UP and self.direction != Direction.DOWN:
-                        self.next_direction = Direction.UP
-                    elif event.key == pygame.K_DOWN and self.direction != Direction.UP:
-                        self.next_direction = Direction.DOWN
-                    elif event.key == pygame.K_LEFT and self.direction != Direction.RIGHT:
-                        self.next_direction = Direction.LEFT
-                    elif event.key == pygame.K_RIGHT and self.direction != Direction.LEFT:
-                        self.next_direction = Direction.RIGHT
+                    if event.key == pygame.K_SPACE:
+                        self.paused = not self.paused
+                    elif not self.paused:
+                        if event.key == pygame.K_UP and self.direction != Direction.DOWN:
+                            self.next_direction = Direction.UP
+                        elif event.key == pygame.K_DOWN and self.direction != Direction.UP:
+                            self.next_direction = Direction.DOWN
+                        elif event.key == pygame.K_LEFT and self.direction != Direction.RIGHT:
+                            self.next_direction = Direction.LEFT
+                        elif event.key == pygame.K_RIGHT and self.direction != Direction.LEFT:
+                            self.next_direction = Direction.RIGHT
 
         return True
 
     def update(self):
-        if self.game_over:
+        if self.game_over or self.paused:
             return
 
         self.direction = self.next_direction
@@ -135,6 +139,17 @@ class SnakeGame:
         # Draw score
         score_text = self.font.render(f'Score: {self.score}', True, self.WHITE)
         self.screen.blit(score_text, (10, 10))
+
+        # Draw pause screen
+        if self.paused:
+            pause_text = self.font.render('PAUSED', True, self.WHITE)
+            continue_text = self.font.render('Press SPACE to continue', True, self.WHITE)
+
+            text_rect = pause_text.get_rect(center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 - 20))
+            continue_rect = continue_text.get_rect(center=(self.WINDOW_WIDTH // 2, self.WINDOW_HEIGHT // 2 + 20))
+
+            self.screen.blit(pause_text, text_rect)
+            self.screen.blit(continue_text, continue_rect)
 
         # Draw game over screen
         if self.game_over:
